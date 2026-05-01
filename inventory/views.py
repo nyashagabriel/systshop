@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Product, Sale
 from django.db.models import Sum, F
 from django.contrib.auth.decorators import login_required
+from .forms import SaleForm
+from django.contrib import messages
 # Create your views here.
 
 
@@ -39,3 +41,31 @@ def dashboard(request):
     }
     
     return render(request, 'inventory/dashboard.html', context)
+
+
+
+@login_required(login_url='/login/')
+def record_sale_view(request):
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+        if form.is_valid():
+            sale = form.save(commit=False)
+            sale.sold_by = request.user
+            product = sale.product
+
+            if product.quantity >= sale.quantity_sold:
+                sale.save()
+                messages.success(request, f'Sale recorded: {sale.quantity_sold}x {product.name}.')
+                return redirect('product_list')
+            else:
+                messages.error(request, f'Insufficient stock! Only {product.quantity} units remaining.')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = SaleForm()
+
+    context = {
+        'form': form,
+        'title': 'Record a Sale'
+    }
+    return render(request, 'inventory/record_sale.html', context)
