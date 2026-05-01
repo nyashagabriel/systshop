@@ -1,0 +1,41 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Sales History — SystShop{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Sales <span>History</span></h1>
+  <a href="{% url 'record_sale' %}" class="btn btn-primary">+ Record Sale</a>
+</div>
+
+{% if sales %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th><th>Category</th><th>Qty Sold</th>
+        <th>Unit Price</th><th>Sold By</th><th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in sales %}
+      <tr>
+        <td class="primary">{{ sale.product.name }}</td>
+        <td>{{ sale.product.category }}</td>
+        <td>{{ sale.quantity_sold }}</td>
+        <td>${{ sale.product.price }}</td>
+        <td>{{ sale.sold_by.username }}</td>
+        <td>{{ sale.timestamp|date:"d M Y H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">📋</div>
+  <p>No sales recorded yet.</p>
+  <a href="{% url 'record_sale' %}" class="btn btn-primary">Record First Sale</a>
+</div>
+{% endif %}
+
+{% endblock %}
