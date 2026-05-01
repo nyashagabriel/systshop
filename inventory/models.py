@@ -1,33 +1,68 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-# Create your models here.
+
+
 class Product(models.Model):
-    name = models.CharField(max_length=200)
-    category = models.CharField(max_length=200)
-    price = models.DecimalField(decimal_places=3, max_digits=1000)
-    quantity = models.IntegerField(default=0)
+    name               = models.CharField(max_length=200)
+    category           = models.CharField(max_length=200)
+    price              = models.DecimalField(max_digits=10, decimal_places=2)  # FIX B3
+    quantity           = models.IntegerField(default=0)
     low_stock_threshold = models.IntegerField(default=5)
 
+    def __str__(self):                             # FIX B4
+        return f"{self.name} ({self.category})"
+
+    @property
+    def stock_value(self):
+        return self.price * self.quantity
+
+    @property
+    def is_low_stock(self):
+        return self.quantity <= self.low_stock_threshold
+
+    class Meta:
+        ordering = ['name']
+
+
 class Sale(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product       = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity_sold = models.IntegerField(default=0)
-    sold_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    
+    sold_by       = models.ForeignKey(User, on_delete=models.CASCADE)
+    timestamp     = models.DateTimeField(auto_now_add=True)
+
     def save(self, *args, **kwargs):
-        if self.product.quantity >= self.quantity_sold:
-            self.product.quantity -= self.quantity_sold
-            self.product.save()
-            super().save(**args, **kwargs)
-        else:
-            ValidationError(f"There is not enough to make a sale for {self.product.name}")
-        
-    
+        if self.product.quantity < self.quantity_sold:
+            raise ValidationError(                    # FIX B1: raise, not just call
+                f"Not enough stock for {self.product.name}. "
+                f"Available: {self.product.quantity}"
+            )
+        self.product.quantity -= self.quantity_sold
+        self.product.save()
+        super().save(*args, **kwargs)               # FIX B1: *args not **args
+
+    def __str__(self):                             # FIX B4
+        return f"{self.quantity_sold}x {self.product.name} by {self.sold_by}"
+
+    class Meta:
+        ordering = ['-timestamp']
+
 
 class InStock(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product        = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity_added = models.IntegerField(default=0)
-    added_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    
+    added_by       = models.ForeignKey(User, on_delete=models.CASCADE)
+    timestamp      = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):               # FIX B2: was completely missing
+        if self.quantity_added <= 0:
+            raise ValidationError("Quantity added must be greater than zero.")
+        self.product.quantity += self.quantity_added
+        self.product.save()
+        super().save(*args, **kwargs)
+
+    def __str__(self):                             # FIX B4
+        return f"+{self.quantity_added} {self.product.name} by {self.added_by}"
+
+    class Meta:
+        ordering = ['-timestamp']
