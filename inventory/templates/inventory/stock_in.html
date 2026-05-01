@@ -1,31 +1,40 @@
 {% extends 'inventory/base.html' %}
-{% block title %}Stock In — SystShop{% endblock %}
+{% block title %}Stock In - SystShop{% endblock %}
+{% block section_kicker %}Replenishment{% endblock %}
+{% block section_title %}Stock in{% endblock %}
 {% block content %}
 
-<div class="page-header">
-  <h1 class="page-title">Stock <span>In</span></h1>
-  <a href="{% url 'product_list' %}" class="btn btn-secondary">← Products</a>
-</div>
+<section class="form-layout card card--narrow">
+  <div class="panel-header panel-header--stacked">
+    <div>
+      <span class="eyebrow">Warehouse input</span>
+      <h4>Register incoming stock against the product catalog.</h4>
+    </div>
+    <a href="{% url 'product_list' %}" class="text-link">Back to products</a>
+  </div>
 
-<div class="card" style="max-width:480px">
-  <p style="color:var(--text2);font-size:.88rem;margin-bottom:1.25rem">
-    Select a product and enter the quantity received. Stock updates immediately.
-  </p>
-  <form method="post">
+  <form method="post" class="form-stack">
     {% csrf_token %}
+    {{ form.non_field_errors }}
+
     <div class="form-group">
-      <label>Product</label>
+      <label for="{{ form.product.id_for_label }}">Product</label>
       {{ form.product }}
+      {{ form.product.errors }}
     </div>
+
     <div class="form-group">
-      <label>Quantity Received</label>
+      <label for="{{ form.quantity_added.id_for_label }}">Quantity received</label>
       {{ form.quantity_added }}
+      {{ form.quantity_added.errors }}
+      <p class="help-text">Stock is updated immediately after submission.</p>
     </div>
-    <div style="margin-top:1.5rem;display:flex;gap:.75rem">
-      <button type="submit" class="btn btn-green">+ Confirm Stock In</button>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-success">Confirm stock in</button>
       <a href="{% url 'product_list' %}" class="btn btn-secondary">Cancel</a>
     </div>
   </form>
-</div>
+</section>
 
 {% endblock %}

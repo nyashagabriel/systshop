@@ -1,107 +1,117 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Tuckshop Admin</title>
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-</head>
-<body>
+{% extends 'inventory/base.html' %}
 
-    <nav class="top-nav">
-        <a href="/" class="brand">📦 SystemShop</a>
-        
-        <div class="user-controls">
-            <div class="user-profile">
-                <div class="avatar">{{ request.user.username|make_list|first|upper }}</div>
-                <span>{{ request.user.username|default:"Admin User" }}</span>
-            </div>
-            
-            <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn-logout">Logout</button>
-            </form>
-        </div>
-    </nav>
+{% block title %}Dashboard - SystShop{% endblock %}
+{% block section_kicker %}Executive overview{% endblock %}
+{% block section_title %}Dashboard{% endblock %}
 
-    <main class="container">
-        
-        <div class="header-actions">
-            <h1>Business Overview</h1>
-            <a href="{% url 'product_list' %}" class="btn-primary">Manage Full Inventory &rarr;</a>
-        </div>
+{% block content %}
+<section class="hero-card card">
+  <div>
+    <span class="eyebrow">Operational intelligence</span>
+    <h3>See the business in motion from stock value to recent transaction flow.</h3>
+    <p>This dashboard gives the admin team a clean command surface for daily inventory decisions.</p>
+  </div>
+  <div class="hero-actions">
+    <a href="{% url 'product_list' %}" class="btn btn-primary">Manage inventory</a>
+    <a href="{% url 'record_sale' %}" class="btn btn-secondary">Record sale</a>
+  </div>
+</section>
 
-        <section class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-title">Total Active Products</div>
-                <div class="stat-value">{{ total_products }}</div>
-            </div>
-            
-            <div class="stat-card" style="border-left-color: #10b981;">
-                <div class="stat-title">Total Capital (Stock Value)</div>
-                <div class="stat-value">${{ total_stock_value|floatformat:2|default:"0.00" }}</div>
-            </div>
-        </section>
+<section class="metric-grid">
+  <article class="metric-card">
+    <span class="metric-label">Total active products</span>
+    <strong class="metric-value">{{ total_products }}</strong>
+    <span class="metric-note">All products currently tracked in the system.</span>
+  </article>
 
-        <section class="tables-grid">
-            
-            <div class="data-panel">
-                <h2 class="panel-title">⚠️ Low Stock Alerts</h2>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Item Name</th>
-                            <th class="text-right">Current Qty</th>
-                            <th class="text-right">Threshold</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in low_stock_items %}
-                        <tr>
-                            <td><strong>{{ item.name }}</strong></td>
-                            <td class="text-right"><span class="badge badge-warning">{{ item.quantity }}</span></td>
-                            <td class="text-right">{{ item.low_stock_threshold }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3" class="empty-msg">All products are currently well-stocked!</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+  <article class="metric-card metric-card--accent">
+    <span class="metric-label">Stock value</span>
+    <strong class="metric-value">${{ total_stock_value|floatformat:2|default:"0.00" }}</strong>
+    <span class="metric-note">Estimated capital tied up in inventory.</span>
+  </article>
 
-            <div class="data-panel">
-                <h2 class="panel-title">📈 Recent Transactions</h2>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th class="text-right">Qty Sold</th>
-                            <th class="text-right">Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for sale in recent_sales %}
-                        <tr>
-                            <td>{{ sale.product.name }}</td>
-                            <td class="text-right">{{ sale.quantity_sold }}</td>
-                            <td class="text-right" style="color: var(--text-muted); font-size: 0.85rem;">
-                                {{ sale.timestamp|date:"M j, g:i a" }}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3" class="empty-msg">No sales recorded yet.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+  <article class="metric-card metric-card--warning">
+    <span class="metric-label">Low stock alerts</span>
+    <strong class="metric-value">{{ low_stock_items|length }}</strong>
+    <span class="metric-note">Items that need replenishment attention.</span>
+  </article>
+</section>
 
-        </section>
-    </main>
+<section class="content-grid">
+  <article class="panel card">
+    <div class="panel-header">
+      <div>
+        <span class="eyebrow">Inventory risk</span>
+        <h4>Low stock alerts</h4>
+      </div>
+      <a href="{% url 'product_list' %}" class="text-link">Review products</a>
+    </div>
 
-</body>
-</html>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th class="text-right">In stock</th>
+            <th class="text-right">Threshold</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in low_stock_items %}
+          <tr>
+            <td>
+              <strong>{{ item.name }}</strong>
+              <div class="table-subtext">{{ item.category }}</div>
+            </td>
+            <td class="text-right"><span class="badge badge-warning">{{ item.quantity }}</span></td>
+            <td class="text-right">{{ item.low_stock_threshold }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="empty-state">All products are currently above their low stock threshold.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel card">
+    <div class="panel-header">
+      <div>
+        <span class="eyebrow">Sales pulse</span>
+        <h4>Recent transactions</h4>
+      </div>
+      <a href="{% url 'sales_history' %}" class="text-link">Open history</a>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th class="text-right">Qty sold</th>
+            <th class="text-right">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sale in recent_sales %}
+          <tr>
+            <td>
+              <strong>{{ sale.product.name }}</strong>
+              <div class="table-subtext">{{ sale.sold_by.username }}</div>
+            </td>
+            <td class="text-right">{{ sale.quantity_sold }}</td>
+            <td class="text-right table-subtext">{{ sale.timestamp|date:"M j, g:i a" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="empty-state">No sales recorded yet.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+</section>
+{% endblock %}

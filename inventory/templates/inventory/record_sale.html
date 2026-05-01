@@ -1,128 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Record Sale — Tuckshop Manager</title>
-  <style>
-    :root {
-      --bg: #0a0a0a;
-      --surface: #111111;
-      --border: #2a2a2a;
-      --accent: #f0c93a;
-      --text: #e8e8e8;
-      --text2: #999;
-      --danger: #f87171;
-    }
-    
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: sans-serif;
-      margin: 0;
-      padding: 3rem 2rem;
-      line-height: 1.6;
-    }
+{% extends 'inventory/base.html' %}
 
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 2rem;
-      border-radius: 6px;
-    }
+{% block title %}Record Sale - SystShop{% endblock %}
+{% block section_kicker %}Sales operations{% endblock %}
+{% block section_title %}Record sale{% endblock %}
 
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 0.5rem;
-      color: var(--text);
-    }
-
-    .subtitle {
-      color: var(--text2);
-      font-size: 0.9rem;
-      margin-bottom: 2rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-
-    label {
-      display: block;
-      font-size: 0.85rem;
-      margin-bottom: 0.4rem;
-      color: var(--text2);
-    }
-
-    select, input {
-      width: 100%;
-      padding: 0.75rem;
-      background: #151515;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--text);
-      font-size: 0.9rem;
-      box-sizing: border-box;
-    }
-
-    button {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 1rem;
-    }
-    
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .messages {
-      margin-bottom: 1.25rem;
-    }
-
-    .alert {
-      padding: 0.75rem;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      background: #f871710a;
-      border: 1px solid rgba(248, 113, 113, 0.25);
-      color: var(--danger);
-    }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <h1>Record a Sale</h1>
-  <div class="subtitle">Enter sale details for the tuckshop</div>
-
-  {% if messages %}
-    <div class="messages">
-      {% for message in messages %}
-        <div class="alert">{{ message }}</div>
-      {% endfor %}
+{% block content %}
+<section class="form-layout card card--narrow">
+  <div class="panel-header panel-header--stacked">
+    <div>
+      <span class="eyebrow">Transaction entry</span>
+      <h4>Capture each sale against live stock levels.</h4>
     </div>
-  {% endif %}
+    <a href="{% url 'sales_history' %}" class="text-link">View history</a>
+  </div>
 
-  <form method="POST">
+  <form method="post" class="form-stack">
     {% csrf_token %}
-    
+    {{ form.non_field_errors }}
+
     {% for field in form %}
       <div class="form-group">
-        <label>{{ field.label }}</label>
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
+        {{ field.errors }}
       </div>
     {% endfor %}
-    
-    <button type="submit">Complete Sale</button>
-  </form>
-</div>
 
-</body>
-</html>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Complete sale</button>
+      <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

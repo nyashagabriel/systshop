@@ -1,43 +1,88 @@
-<!DOCTYPE html>
+{% load static %}
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}SystShop{% endblock %}</title>
-  {% load static %}
-  <!-- ... styles ... -->
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
+  {% if user.is_authenticated %}
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand-mark">SS</div>
+        <div>
+          <p class="eyebrow">Corporate inventory</p>
+          <h1 class="brand-title">SystShop</h1>
+        </div>
+      </div>
 
-{% if user.is_authenticated %}
-<nav>
-  <a href="{% url 'dashboard' %}" class="nav-brand">sys_shop /</a>
-  <div class="nav-links">
-    <a href="{% url 'dashboard' %}">Dashboard</a>
-    <a href="{% url 'product_list' %}">Products</a>
-    <a href="{% url 'record_sale' %}">Record Sale</a>
-    <a href="{% url 'stock_in' %}">Stock In</a>
-    <a href="{% url 'sales_history' %}">History</a>
-  </div>
-  <div class="nav-right">
-    <span>{{ user.username }}</span>
-    <form method="post" action="{% url 'logout' %}" style="display:inline;">
-      {% csrf_token %}
-      <button type="submit" style="background:none; border:none; color:inherit; cursor:pointer;">Logout</button>
-    </form>
-  </div>
-</nav>
-{% endif %}
+      <p class="sidebar-copy">A focused workspace for inventory control, sales tracking, and replenishment.</p>
 
-<main>
-  {% if messages %}
-  <div class="messages">
-    {% for message in messages %}
-    <div class="msg msg-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
+      <nav class="sidebar-nav" aria-label="Primary navigation">
+        <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{% url 'product_list' %}" class="{% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">Products</a>
+        <a href="{% url 'add_product' %}" class="{% if request.resolver_match.url_name == 'add_product' %}active{% endif %}">Add product</a>
+        <a href="{% url 'record_sale' %}" class="{% if request.resolver_match.url_name == 'record_sale' %}active{% endif %}">Record sale</a>
+        <a href="{% url 'stock_in' %}" class="{% if request.resolver_match.url_name == 'stock_in' %}active{% endif %}">Stock in</a>
+        <a href="{% url 'sales_history' %}" class="{% if request.resolver_match.url_name == 'sales_history' %}active{% endif %}">Sales history</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="sidebar-label">Signed in as</span>
+        <strong>{{ user.get_full_name|default:user.username }}</strong>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">{% block section_kicker %}Operations center{% endblock %}</p>
+          <h2 class="topbar-title">{% block section_title %}{{ request.resolver_match.url_name|default:'overview'|title }}{% endblock %}</h2>
+        </div>
+        <div class="topbar-actions">
+          <div class="user-chip">
+            <span class="avatar">{{ user.username|slice:":1"|upper }}</span>
+            <div>
+              <strong>{{ user.get_full_name|default:user.username }}</strong>
+              <span>Administrator</span>
+            </div>
+          </div>
+          <form method="post" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">Sign out</button>
+          </form>
+        </div>
+      </header>
+
+      <main class="page">
+        {% if messages %}
+        <div class="alerts">
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
   </div>
+  {% else %}
+  <main class="auth-shell">
+    {% if messages %}
+    <div class="alerts alerts--auth">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
   {% endif %}
-  {% block content %}{% endblock %}
-</main>
-
 </body>
 </html>
