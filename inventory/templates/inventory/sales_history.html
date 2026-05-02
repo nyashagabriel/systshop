@@ -7,8 +7,8 @@
 <section class="hero-card card">
   <div>
     <span class="eyebrow">Sales archive</span>
-    <h3>Review the full transaction history across the workspace.</h3>
-    <p>Every sale is stored with product, quantity, operator, and timestamp for accountability.</p>
+    <h3>Comprehensive audit log of all organizational transactions.</h3>
+    <p>Every transaction is recorded with product details, exact quantities, operator ID, and timestamp to ensure complete operational accountability.</p>
   </div>
   <div class="hero-actions">
     <a href="{% url 'record_sale' %}" class="btn btn-primary">Record sale</a>
@@ -24,7 +24,6 @@
     </div>
   </div>
 
-  {% if sales %}
   <div class="table-wrap">
     <table class="data-table">
       <thead>
@@ -47,16 +46,17 @@
           <td>{{ sale.sold_by.username }}</td>
           <td class="text-right table-subtext">{{ sale.timestamp|date:"d M Y H:i" }}</td>
         </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="empty-state">
+            <p>No transaction history available.</p>
+            <a href="{% url 'record_sale' %}" class="btn btn-primary" style="display: inline-flex; margin-top: 0.5rem;">Record first sale</a>
+          </td>
+        </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-  {% else %}
-  <div class="empty-state empty-state--panel">
-    <p>No sales recorded yet.</p>
-    <a href="{% url 'record_sale' %}" class="btn btn-primary">Record first sale</a>
-  </div>
-  {% endif %}
 </section>
 
 {% endblock %}

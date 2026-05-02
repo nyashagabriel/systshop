@@ -1,0 +1,77 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Companies - SystShop{% endblock %}
+{% block section_kicker %}Platform Management{% endblock %}
+{% block section_title %}Enrolled Companies{% endblock %}
+
+{% block content %}
+<section class="panel card">
+  <div class="panel-header">
+    <div>
+      <span class="eyebrow">Tenant Roster</span>
+      <h4>{{ companies|length }} total organizations</h4>
+    </div>
+    <a href="{% url 'system_company_add' %}" class="btn btn-primary btn-sm">Enroll Company</a>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Company Name</th>
+          <th>Status</th>
+          <th>Users</th>
+          <th>Branches</th>
+          <th>Enrolled On</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for company in companies %}
+        <tr>
+          <td>
+            <strong>{{ company.name }}</strong>
+          </td>
+          <td>
+            {% if company.status == 'ACTIVE' %}
+            <span class="badge badge-success">Active</span>
+            {% elif company.status == 'PENDING_DELETION' %}
+            <span class="badge badge-warning">Pending Deletion</span>
+            <div class="table-subtext">Action required in 2 months</div>
+            {% elif company.status == 'PAUSED' %}
+            <span class="badge badge-secondary">Paused</span>
+            <div class="table-subtext">Final warning phase</div>
+            {% endif %}
+          </td>
+          <td>{{ company.user_count }}</td>
+          <td>{{ company.branch_count }}</td>
+          <td>{{ company.created_at|date:"M d, Y" }}</td>
+          <td class="text-right">
+            {% if company.status == 'ACTIVE' %}
+              <form action="{% url 'system_company_status' company.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Set this company to Pending Deletion?');">Flag for Deletion</button>
+              </form>
+            {% elif company.status == 'PENDING_DELETION' %}
+              <form action="{% url 'system_company_status' company.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Pause this company for final warning?');">Pause Company</button>
+              </form>
+            {% elif company.status == 'PAUSED' %}
+              <form action="{% url 'system_company_status' company.pk %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('WARNING: This will permanently delete all data for this company. Continue?');">Permadelete</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="empty-state">No companies have been enrolled yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

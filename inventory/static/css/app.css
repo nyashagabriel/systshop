@@ -3,8 +3,8 @@
   --bg-elevated: #0f1b31;
   --bg-panel: #12213c;
   --bg-soft: #162742;
-  --text: #edf2f7;
-  --text-muted: #9fb0c7;
+  --text: #ffffff;
+  --text-muted: #cbd5e1;
   --border: rgba(165, 183, 209, 0.18);
   --accent: #5ca7ff;
   --accent-strong: #2f7de1;
@@ -14,6 +14,7 @@
   --shadow: 0 28px 60px rgba(5, 11, 24, 0.38);
   --radius: 18px;
   --radius-sm: 12px;
+  --pixels2: 2px;
 }
 
 * {
@@ -22,6 +23,12 @@
 
 html {
   color-scheme: dark;
+}
+
+*:focus-visible {
+  outline: var(--pixels2) solid var(--accent);
+  outline-offset: var(--pixels2);
+  border-radius: var(--pixels2);
 }
 
 body {
@@ -64,11 +71,19 @@ button {
 .sidebar {
   padding: 1.75rem 1.35rem;
   border-right: 1px solid var(--border);
-  background: rgba(5, 10, 21, 0.6);
+  background: rgba(5, 10, 21, 0.95);
   backdrop-filter: blur(14px);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+.mobile-header {
+  display: none;
+}
+
+.sidebar-overlay {
+  display: none;
 }
 
 .brand-block {
@@ -79,7 +94,7 @@ button {
 
 .brand-mark,
 .avatar {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
@@ -361,6 +376,14 @@ button {
   color: #8ec5ff;
 }
 
+.text-danger {
+  color: var(--danger);
+}
+
+.text-danger:hover {
+  color: #ff8a7d;
+}
+
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);
@@ -390,8 +413,12 @@ button {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.data-table tbody tr {
+  transition: background 0.2s ease;
+}
+
 .data-table tbody tr:hover {
-  background: rgba(92, 167, 255, 0.06);
+  background: rgba(92, 167, 255, 0.08);
 }
 
 .data-table td strong {
@@ -433,6 +460,22 @@ button {
   display: grid;
   gap: 0.9rem;
 }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-secondary { background: rgba(156, 163, 175, 0.15); color: #9ca3af; border: 1px solid rgba(156, 163, 175, 0.3); }
+.badge-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
 .form-layout {
   width: min(100%, 640px);
@@ -516,6 +559,7 @@ input[type="hidden"] {
 
 .btn:hover {
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(92, 167, 255, 0.2);
 }
 
 .btn-primary {
@@ -532,6 +576,11 @@ input[type="hidden"] {
 .btn-success {
   color: #081120;
   background: linear-gradient(135deg, #6ce7a1, var(--success));
+}
+
+.btn-danger {
+  color: #ffffff;
+  background: linear-gradient(135deg, #ff8a7d, var(--danger));
 }
 
 .btn-block {
@@ -604,11 +653,67 @@ input[type="hidden"] {
 @media (max-width: 1100px) {
   .app-shell {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: rgba(7, 14, 27, 0.85);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .mobile-menu-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    margin: -0.5rem;
   }
 
   .sidebar {
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid var(--border);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .sidebar-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Hide the brand block inside sidebar on mobile since it's in the top header */
+  .sidebar > .brand-block {
+    display: none;
   }
 
   .content-grid,

@@ -1,0 +1,38 @@
+{% extends 'inventory/base.html' %}
+{% block title %}{{ title }} - SystShop{% endblock %}
+{% block section_kicker %}Platform Management{% endblock %}
+{% block section_title %}{{ title }}{% endblock %}
+{% block content %}
+
+<section class="form-layout card card--narrow">
+  <div class="panel-header panel-header--stacked">
+    <div>
+      <span class="eyebrow">Tenant Enrollment</span>
+      <h4>Create a new company space and an initial administrator account.</h4>
+    </div>
+    <a href="{% url 'system_company_list' %}" class="text-link">Back to companies</a>
+  </div>
+
+  <form method="post" class="form-stack">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {% for field in form %}
+    <div class="form-group">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+      {% if field.help_text %}
+      <p class="help-text">{{ field.help_text }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Enroll Company</button>
+      <a href="{% url 'system_company_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</section>
+
+{% endblock %}

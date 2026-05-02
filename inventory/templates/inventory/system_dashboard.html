@@ -1,0 +1,36 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}System Dashboard - SystShop{% endblock %}
+{% block section_kicker %}Platform Management{% endblock %}
+{% block section_title %}Global Overview{% endblock %}
+
+{% block content %}
+<section class="hero-card card">
+  <div>
+    <span class="eyebrow">Platform Intelligence</span>
+    <h3>Monitor all active tenants and system metrics.</h3>
+    <p>This command center provides global visibility over all enrolled companies and their resource usage.</p>
+  </div>
+  <div class="hero-actions">
+    <a href="{% url 'system_company_add' %}" class="btn btn-primary">Enroll New Company</a>
+  </div>
+</section>
+
+<div class="metric-grid">
+  <div class="metric-card metric-card--accent">
+    <span class="metric-label">Active Companies</span>
+    <strong class="metric-value">{{ active_companies }}</strong>
+    <span class="metric-note">Total enrolled: {{ total_companies }}</span>
+  </div>
+  <div class="metric-card">
+    <span class="metric-label">Total Users</span>
+    <strong class="metric-value">{{ total_users }}</strong>
+    <span class="metric-note">Across all tenants</span>
+  </div>
+  <div class="metric-card">
+    <span class="metric-label">Total Branches</span>
+    <strong class="metric-value">{{ total_branches }}</strong>
+    <span class="metric-note">Physical locations</span>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Personnel - SystShop{% endblock %}
+{% block section_kicker %}Workforce Management{% endblock %}
+{% block section_title %}Personnel Directory{% endblock %}
+
+{% block content %}
+<section class="hero-card card">
+  <div>
+    <span class="eyebrow">User administration</span>
+    <h3>Manage your workforce and assign operational roles.</h3>
+    <p>Use this directory to review roles, add new staff, and control system access.</p>
+  </div>
+  <div class="hero-actions">
+    <a href="{% url 'user_add' %}" class="btn btn-primary" aria-label="Add new personnel">Add Personnel</a>
+  </div>
+</section>
+
+<section class="panel card">
+  <div class="panel-header">
+    <div>
+      <span class="eyebrow">Personnel roster</span>
+      <h4>{{ users|length }} active members</h4>
+    </div>
+    <a href="{% url 'dashboard' %}" class="text-link">Back to dashboard</a>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table" aria-label="Personnel Directory Table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Role</th>
+          <th>Last Login</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for personnel in users %}
+        <tr>
+          <td>
+            <strong>{{ personnel.get_full_name|default:personnel.username }}</strong>
+            <div class="table-subtext">{{ personnel.email|default:"No email provided" }}</div>
+          </td>
+          <td>
+            {% if personnel.profile.role == 'ADMIN' %}
+            <span class="badge badge-success">Administrator</span>
+            {% elif personnel.profile.role == 'MANAGER' %}
+            <span class="badge badge-warning">Manager</span>
+            {% else %}
+            <span class="badge badge-secondary">Staff</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="table-subtext">{{ personnel.last_login|date:"d M Y H:i"|default:"Never logged in" }}</div>
+          </td>
+          <td class="text-right">
+            {% if personnel.profile.role != 'ADMIN' or request.user.profile.role == 'ADMIN' %}
+              <a href="{% url 'user_edit' personnel.pk %}" class="text-link" aria-label="Edit user {{ personnel.username }}">Edit</a>
+              {% if request.user.profile.role == 'ADMIN' and request.user != personnel %}
+                | <a href="{% url 'user_delete' personnel.pk %}" class="text-link text-danger" aria-label="Delete user {{ personnel.username }}" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+              {% endif %}
+            {% else %}
+              <span class="text-muted">No access</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="empty-state">
+            <p>Your directory is empty. Add your first staff member to assign roles.</p>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

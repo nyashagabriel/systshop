@@ -11,24 +11,48 @@
 <body>
   {% if user.is_authenticated %}
   <div class="app-shell">
+    <div class="mobile-header">
+      <div class="brand-block">
+        <div class="brand-mark">SS</div>
+        <h1 class="brand-title">SystShop</h1>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Toggle navigation">☰</button>
+    </div>
+    
+    <div class="sidebar-overlay"></div>
     <aside class="sidebar">
       <div class="brand-block">
         <div class="brand-mark">SS</div>
         <div>
-          <p class="eyebrow">Corporate inventory</p>
+          <p class="eyebrow">Enterprise POS & Inventory</p>
           <h1 class="brand-title">SystShop</h1>
         </div>
       </div>
 
-      <p class="sidebar-copy">A focused workspace for inventory control, sales tracking, and replenishment.</p>
+      {% if user.is_superuser %}
+      <p class="sidebar-copy">Platform Management Console for Global System Administrators.</p>
+      {% else %}
+      <p class="sidebar-copy">Real-time operational intelligence and complete inventory control.</p>
+      {% endif %}
 
       <nav class="sidebar-nav" aria-label="Primary navigation">
+        {% if user.is_superuser %}
+        <a href="{% url 'system_dashboard' %}" class="{% if request.resolver_match.url_name == 'system_dashboard' %}active{% endif %}">Platform Overview</a>
+        <a href="{% url 'system_company_list' %}" class="{% if 'company' in request.resolver_match.url_name %}active{% endif %}">Companies</a>
+        {% else %}
         <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
         <a href="{% url 'product_list' %}" class="{% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">Products</a>
         <a href="{% url 'add_product' %}" class="{% if request.resolver_match.url_name == 'add_product' %}active{% endif %}">Add product</a>
         <a href="{% url 'record_sale' %}" class="{% if request.resolver_match.url_name == 'record_sale' %}active{% endif %}">Record sale</a>
         <a href="{% url 'stock_in' %}" class="{% if request.resolver_match.url_name == 'stock_in' %}active{% endif %}">Stock in</a>
         <a href="{% url 'sales_history' %}" class="{% if request.resolver_match.url_name == 'sales_history' %}active{% endif %}">Sales history</a>
+        {% if user.profile.role == 'ADMIN' %}
+        <a href="{% url 'branch_list' %}" class="{% if 'branch' in request.resolver_match.url_name %}active{% endif %}">Branches</a>
+        {% endif %}
+        {% if user.profile.role == 'ADMIN' or user.profile.role == 'MANAGER' %}
+        <a href="{% url 'user_list' %}" class="{% if 'user' in request.resolver_match.url_name %}active{% endif %}">Personnel</a>
+        {% endif %}
+        {% endif %}
       </nav>
 
       <div class="sidebar-footer">
@@ -48,7 +72,13 @@
             <span class="avatar">{{ user.username|slice:":1"|upper }}</span>
             <div>
               <strong>{{ user.get_full_name|default:user.username }}</strong>
+              {% if user.is_superuser %}
               <span>Administrator</span>
+              {% elif user.profile %}
+              <span>{{ user.profile.get_role_display|default:"Staff" }}</span>
+              {% else %}
+              <span>Staff</span>
+              {% endif %}
             </div>
           </div>
           <form method="post" action="{% url 'logout' %}" class="logout-form">
@@ -84,5 +114,23 @@
     {% block auth_content %}{% endblock %}
   </main>
   {% endif %}
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileBtn = document.querySelector('.mobile-menu-btn');
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
+      
+      if (mobileBtn && sidebar && overlay) {
+        const toggleMenu = () => {
+          sidebar.classList.toggle('open');
+          overlay.classList.toggle('open');
+        };
+        
+        mobileBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+      }
+    });
+  </script>
 </body>
 </html>

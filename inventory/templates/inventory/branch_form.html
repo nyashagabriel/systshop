@@ -1,0 +1,38 @@
+{% extends 'inventory/base.html' %}
+{% block title %}{{ title }} - SystShop{% endblock %}
+{% block section_kicker %}Company Overview{% endblock %}
+{% block section_title %}{{ title }}{% endblock %}
+{% block content %}
+
+<section class="form-layout card card--narrow">
+  <div class="panel-header panel-header--stacked">
+    <div>
+      <span class="eyebrow">Location management</span>
+      <h4>Establish a new branch under your company.</h4>
+    </div>
+    <a href="{% url 'branch_list' %}" class="text-link">Back to branches</a>
+  </div>
+
+  <form method="post" class="form-stack">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {% for field in form %}
+    <div class="form-group">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {{ field.errors }}
+      {% if field.help_text %}
+      <p class="help-text">{{ field.help_text }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Create Branch</button>
+      <a href="{% url 'branch_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</section>
+
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'inventory/base.html' %}
+{% block title %}{{ title }} - SystShop{% endblock %}
+{% block section_kicker %}Workforce Management{% endblock %}
+{% block section_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="form-layout card card--narrow">
+  <div class="panel-header panel-header--stacked">
+    <div>
+      <span class="eyebrow">Personnel record</span>
+      <h4>Configure user access and operational roles.</h4>
+    </div>
+    <a href="{% url 'user_list' %}" class="text-link">Back to personnel</a>
+  </div>
+
+  <form method="post" class="form-stack" aria-label="{{ title }} form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {% if form.username %}
+    <div class="form-group">
+      <label for="{{ form.username.id_for_label }}">Username</label>
+      {{ form.username }}
+      {{ form.username.errors }}
+    </div>
+    {% endif %}
+
+    <div class="form-grid form-grid--2">
+      <div class="form-group">
+        <label for="{{ form.first_name.id_for_label }}">First name</label>
+        {{ form.first_name }}
+        {{ form.first_name.errors }}
+      </div>
+      <div class="form-group">
+        <label for="{{ form.last_name.id_for_label }}">Last name</label>
+        {{ form.last_name }}
+        {{ form.last_name.errors }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.role.id_for_label }}">Operational Role</label>
+      {{ form.role }}
+      {{ form.role.errors }}
+      <p class="help-text" id="role-help">Determines the user's access level to the system.</p>
+    </div>
+
+    <!-- Display password fields only during creation -->
+    {% for field in form %}
+      {% if 'password' in field.name %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {{ field.errors }}
+        {% if field.help_text %}
+        <p class="help-text">{{ field.help_text|safe }}</p>
+        {% endif %}
+      </div>
+      {% endif %}
+    {% endfor %}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        {% if 'Edit' in title %}Save changes{% else %}Add personnel{% endif %}
+      </button>
+      <a href="{% url 'user_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

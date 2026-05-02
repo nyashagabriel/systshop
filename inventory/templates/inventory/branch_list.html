@@ -1,0 +1,54 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Branches - SystShop{% endblock %}
+{% block section_kicker %}Company Overview{% endblock %}
+{% block section_title %}Branch Network{% endblock %}
+
+{% block content %}
+<section class="hero-card card">
+  <div>
+    <span class="eyebrow">Location management</span>
+    <h3>Manage your enterprise branches.</h3>
+    <p>View all physical locations and manage their independent stock and personnel operations.</p>
+  </div>
+  <div class="hero-actions">
+    <a href="{% url 'add_branch' %}" class="btn btn-primary">Create Branch</a>
+  </div>
+</section>
+
+<section class="panel card">
+  <div class="panel-header">
+    <div>
+      <span class="eyebrow">Branch list</span>
+      <h4>{{ branches|length }} active locations</h4>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Branch Name</th>
+          <th>Location</th>
+          <th>Created On</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for branch in branches %}
+        <tr>
+          <td>
+            <strong>{{ branch.name }}</strong>
+          </td>
+          <td>{{ branch.location|default:"-" }}</td>
+          <td>{{ branch.created_at|date:"M d, Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="3" class="empty-state">No branches defined yet. Create your first branch to begin operations.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
