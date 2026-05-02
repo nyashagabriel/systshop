@@ -6,7 +6,6 @@ from .forms import SaleForm, ProductForm, InStockForm, CustomUserCreationForm, C
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import Branch
 from .decorators import rate_limit
 
 def get_user_branches(user):
