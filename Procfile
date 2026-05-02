@@ -1,1 +1,1 @@
-web: gunicorn sys_shop.wsgi:application
+web: gunicorn sys_shop.wsgi:application --workers 4 --threads 2

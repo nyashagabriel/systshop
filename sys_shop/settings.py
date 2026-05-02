@@ -14,6 +14,11 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
 INSTALLED_APPS = [
     'django.contrib.admin', 'django.contrib.auth',
     'django.contrib.contenttypes', 'django.contrib.messages',
@@ -65,6 +70,13 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'systshop_cache',
+    }
+}
 
 STATIC_URL  = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'

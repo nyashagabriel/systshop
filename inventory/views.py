@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import Branch
+from .decorators import rate_limit
 
 def get_user_branches(user):
     if not hasattr(user, 'profile') or not user.profile.company:
@@ -171,6 +172,7 @@ def product_list(request):
 
 
 @manager_required
+@rate_limit(requests=60, window=60) # Protect against scripting mass fake products
 def add_product(request):                         # NEW: was missing entirely
     if request.method == 'POST':
         form = ProductForm(request.POST)
@@ -227,6 +229,7 @@ def edit_product(request, pk):                   # NEW: was missing entirely
 
 
 @tenant_required
+@rate_limit(requests=120, window=60) # Allow 2 sales per second max per IP
 def record_sale_view(request):
     if request.method == 'POST':
         form = SaleForm(request.POST)
