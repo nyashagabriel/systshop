@@ -11,6 +11,7 @@ class Company(models.Model):
         ('PAUSED', 'Paused'),
     )
     name = models.CharField(max_length=200)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='owned_companies')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
     status_updated_at = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)

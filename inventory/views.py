@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.models import User
 from .decorators import rate_limit
+from django.contrib.auth import authenticate, login
 
 def get_user_branches(user):
     if not hasattr(user, 'profile') or not user.profile.company:
@@ -309,6 +310,31 @@ def system_company_add(request):
     else:
         form = SystemCompanyCreationForm()
     return render(request, 'inventory/system_company_form.html', {'form': form, 'title': 'Add New Company'})
+
+
+def signup(request):
+    """Public signup that enrolls a company and creates the initial admin user.
+    After successful signup the new admin is authenticated and redirected to dashboard.
+    """
+    if request.method == 'POST':
+        form = SystemCompanyCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # authenticate and log the newly created admin in
+            username = form.cleaned_data.get('admin_username')
+            password = form.cleaned_data.get('admin_password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, 'Welcome! Your company account has been created.')
+                return redirect('dashboard')
+            else:
+                messages.warning(request, 'Account created, but automatic login failed. Please sign in.')
+                return redirect('login')
+    else:
+        form = SystemCompanyCreationForm()
+
+    return render(request, 'inventory/signup.html', {'form': form, 'title': 'Create your company'})
 
 @system_admin_required
 def system_company_status(request, pk):

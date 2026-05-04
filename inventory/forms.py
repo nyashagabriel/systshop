@@ -27,17 +27,21 @@ class SystemCompanyCreationForm(forms.Form):
 
     def save(self):
         with transaction.atomic():
-            company = Company.objects.create(name=self.cleaned_data['company_name'])
             user = User.objects.create_user(
                 username=self.cleaned_data['admin_username'],
                 email=self.cleaned_data['admin_email'],
                 password=self.cleaned_data['admin_password']
             )
-            # The signal will create a profile, we update it
+            # Create company and set user as owner
+            company = Company.objects.create(
+                name=self.cleaned_data['company_name'],
+                owner=user
+            )
+            # The signal creates a profile, we update it
             user.profile.company = company
             user.profile.role = 'ADMIN'
             user.profile.save()
-            return company
+            return user
 
 class UserProfileForm(forms.ModelForm):
     class Meta:

@@ -1,0 +1,37 @@
+{% extends 'inventory/base.html' %}
+{% block title %}{{ title }} - SystShop{% endblock %}
+
+{% block auth_content %}
+<section class="auth-grid">
+  <div class="auth-panel auth-panel--intro">
+    <span class="eyebrow">Create Company</span>
+    <h1>Enroll your company</h1>
+    <p>Set up a company workspace and create the initial administrator account.</p>
+  </div>
+
+  <div class="auth-panel auth-panel--form">
+    <div class="auth-card-header">
+      <h2>Create Company Account</h2>
+      <p>Provide your company name and admin credentials to start.</p>
+    </div>
+
+    <form method="post" class="form-stack">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {{ field.errors }}
+      </div>
+      {% endfor %}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">Create Company</button>
+        <a href="{% url 'login' %}" class="btn btn-secondary btn-block">Back to Sign in</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
