@@ -646,6 +646,10 @@ input[type="hidden"] {
   margin-top: 0.35rem;
 }
 
+.auth-card-header h2 {
+  color: var(--accent)
+}
+
 .auth-footnote {
   font-size: 0.9rem;
 }
